@@ -1,0 +1,17 @@
+version: "3.2"
+networks:
+  web:
+    external: true
+
+services:
+  hello-world:
+    image: dockercloud/hello-world:latest
+    container_name: hello-world
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.backend=frontpage
+      - traefik.frontend.rule=Host:fmlab.no
+      - traefik.docker.network=web
+      - traefik.port=80
