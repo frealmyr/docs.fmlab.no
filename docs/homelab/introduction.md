@@ -1,13 +1,50 @@
-## Homelab
+I wanted to create a blog series dedicated to those who wish to configure and run a decent homelab using only a single-node host without any fancy hardware.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer dictum risus in laoreet pulvinar. In sed maximus purus, eu feugiat magna. Pellentesque diam erat, finibus non sollicitudin ac, accumsan mattis metus. Duis hendrerit ligula sit amet leo imperdiet, a accumsan enim rutrum. Nam suscipit, diam eu ornare euismod, libero orci volutpat justo, non bibendum ligula diam non tellus. Aenean libero leo, bibendum congue tellus ut, feugiat finibus mi. Morbi et nulla sed enim pellentesque egestas quis aliquet erat. Morbi malesuada vitae libero et consectetur.
+With how powerful barebone computers, or even single-board computers like the Raspberry Pi 4 as become. I no longer see the appeal for buying dedicated server hardware, such as racks and NAS.
 
-Curabitur enim nunc, laoreet ut tortor luctus, bibendum vehicula orci. Curabitur ut efficitur risus. Phasellus ut facilisis odio. Fusce tincidunt justo elit, a viverra est pharetra ac. Donec sagittis, mi eu pretium laoreet, magna lacus pulvinar enim, at ullamcorper dolor odio eu velit. Nunc nisl nisi, feugiat sit amet malesuada non, rhoncus vel elit. Sed cursus pulvinar dapibus. Integer in ante dui. Nullam nisi risus, varius at vehicula id, lacinia bibendum risus. Praesent et rutrum ex. Aliquam egestas elit erat, tristique feugiat leo molestie accumsan. Nunc rhoncus massa imperdiet sapien malesuada feugiat.
+This is obviously a personal preference, as i have no need for highly-available services, nor do i have tons of users. (3-4  users at most).
 
-```
-Aliquam placerat non neque sit amet pellentesque. Integer quis sem in mi malesuada posuere eget in sem. Mauris semper pulvinar ligula eu elementum. In laoreet vulputate aliquet. Mauris consectetur sit amet erat sit amet semper. Morbi facilisis consectetur eros, eu tristique quam aliquet tempus. Integer eget sapien id ante ultrices rutrum. Suspendisse potenti.
-```
+Even so, i feel comfortable with my current setup. As i have some decent backup routines, and a monitoring stack with alerting if hardware is about to break.
 
->Nulla eu fermentum lorem, id suscipit velit. Suspendisse vel sapien dui. Proin vehicula, magna sed fermentum imperdiet, felis justo posuere ante, tempor malesuada felis nunc sit amet libero. In dignissim metus eget lacus placerat cursus. Proin tempor augue sit amet massa fringilla, fermentum vestibulum nibh varius. Proin sollicitudin eros vitae velit molestie, et auctor eros scelerisque. Nunc rhoncus nec felis non convallis. Aliquam vulputate sagittis gravida.
+## Current hardware
 
-Nulla convallis imperdiet leo et elementum. Proin eros sem, tincidunt vitae auctor non, venenatis ac dui. Aenean ut feugiat odio. Nulla facilisi. Pellentesque scelerisque in diam faucibus ultricies. Suspendisse sagittis est quis augue rutrum, id dapibus ligula pellentesque. Vestibulum at congue metus. Suspendisse mollis vestibulum consectetur. Mauris et mi non massa scelerisque ullamcorper. Sed aliquet tortor nibh, a pharetra quam tincidunt quis. Morbi id rhoncus arcu. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. In hac habitasse platea dictumst. Nam posuere fermentum tellus ut sollicitudin. Morbi id risus eu tellus hendrerit viverra a quis odio. Fusce in rhoncus urna.
+  - Intel NUC7i3
+    - CPU: Intel Core i3-7100U (0.8GHz-2.40GHz, 3mb Cache)
+    - RAM: 16GB DDR4-2133MHz
+    - SSD: WD Green 480GB M.2
+      - Root filesystem
+      - Home folder
+      - Network share
+    - SSD: Intel 520 60GB 2.5" _(Wear sacrifice)_
+      - `/var/log`
+      - Docker container databases
+      - Swap location for `/tmp` (when it runs out of ram)
+    - USB: WD MyBook V2 8TB
+      - Network share
+      - Media location
+    - USB: WD MyBook V2 8TB
+      - Network share
+      - Nightly backups using [rsync](https://linux.die.net/man/1/rsync)
+        - Backup of important folders
+        - Backup of personal media favorites
+      - Backup folders are synced to cloud service
+
+The NUC7i3 runs 40+ docker images simultaneously, adblock all LAN dns traffic using [pihole](https://github.com/pi-hole/pi-hole), stream media over network using [jellyfin](https://github.com/jellyfin/jellyfin), run a full [prometheus](https://github.com/prometheus/prometheus) stack, automatically finds and download content to HDDs, runs a VR modded minecraft server and plays 4K content to a connected TV using [kodi](https://github.com/xbmc/xbmc).
+
+The NUC can normally handle this at the same time, without any problems. The exception being CPU intensive tasks such as transcoding or a highly populated game server.
+
+## The Homelab
+
+My homelab configuration is, except from the host, entirely hosted from docker images. As there is [little overhead](https://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf) compared to running software on the host itself.
+
+Every stack gets their own folder, with it's own `.env`  and `docker-compose.yml` file.
+
+I use [pihole](https://github.com/pi-hole/pi-hole) to adblock DNS queries on the LAN, and make use of the [dnsmasq](http://www.thekelleys.org.uk/dnsmasq/doc.html) DNS server in the pihole container to direct any `appname.lab` DNS queries to my server.
+
+For network routing, i use [traefik](https://containo.us/traefik/), which can route traffic on my LAN and to the Internet, based on the labels which are set on the application.
+
+All of the running docker images are kept up to date using [watchtower](https://github.com/containrrr/watchtower), which scans for new docker images periodically, and updates these seamlessly.
+
+There is also a monitoring stack with Prometheus, Alertmanager and Grafana. Which gives me a full overview of the current resource utilization, and customized alerting for events, such as a disk that reports bad health over S.M.A.R.T.
+
+In the next pages, i will create guides for how to achieve this homelab setup.
