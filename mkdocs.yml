@@ -1,4 +1,6 @@
-site_name: frealmyrs homelab
+site_name: "frealmyr's homelab"
+site_url: 'https://fmlab.no/'
+
 site_author: 'Fredrick Myrvoll'
 site_description: 'Guides & tips for the homelab community'
 
