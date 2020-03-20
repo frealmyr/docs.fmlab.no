@@ -1,4 +1,4 @@
-site_name: "frealmyr's homelab"
+site_name: "Frealmyr's Homelab"
 site_url: 'https://fmlab.no/'
 
 site_author: 'Fredrick Myrvoll'
@@ -13,7 +13,7 @@ docs_dir: docs/
 nav:
   - Home: index.md
   - Homelab:
-      - introduction: homelab/introduction.md
+      - Introduction: homelab/introduction.md
 
 theme:
   name: 'material'

@@ -8,26 +8,27 @@ Even so, i feel comfortable with my current setup. As i have some decent backup 
 
 ## Current hardware
 
-  - Intel NUC7i3
-    - CPU: Intel Core i3-7100U (0.8GHz-2.40GHz, 3mb Cache)
-    - RAM: 16GB DDR4-2133MHz
-    - SSD: WD Green 480GB M.2
-      - Root filesystem
-      - Home folder
-      - Network share
-    - SSD: Intel 520 60GB 2.5" _(Wear sacrifice)_
-      - `/var/log`
-      - Docker container databases
-      - Swap location for `/tmp` (when it runs out of ram)
-    - USB: WD MyBook V2 8TB
-      - Network share
-      - Media location
-    - USB: WD MyBook V2 8TB
-      - Network share
-      - Nightly backups using [rsync](https://linux.die.net/man/1/rsync)
-        - Backup of important folders
-        - Backup of personal media favorites
-      - Backup folders are synced to cloud service
+**Intel NUC7i3**
+
+  - CPU: Intel Core i3-7100U (0.8GHz-2.40GHz, 3mb Cache)
+  - RAM: 16GB DDR4-2133MHz
+  - SSD: WD Green 480GB M.2
+    - Root filesystem
+    - Home folder
+    - Network share
+  - SSD: Intel 520 60GB 2.5" _(Wear sacrifice)_
+    - `/var/log`
+    - Docker container databases
+    - Swap location for `/tmp` (when it runs out of ram)
+  - USB: WD MyBook V2 8TB
+    - Network share
+    - Media location
+  - USB: WD MyBook V2 8TB
+    - Network share
+    - Nightly backups using [rsync](https://linux.die.net/man/1/rsync)
+      - Backup of important folders
+      - Backup of personal media favorites
+    - Backup folders are synced to cloud service
 
 The NUC7i3 runs 40+ docker images simultaneously, adblock all LAN dns traffic using [pihole](https://github.com/pi-hole/pi-hole), stream media over network using [jellyfin](https://github.com/jellyfin/jellyfin), run a full [prometheus](https://github.com/prometheus/prometheus) stack, automatically finds and download content to HDDs, runs a VR modded minecraft server and plays 4K content to a connected TV using [kodi](https://github.com/xbmc/xbmc).
 
