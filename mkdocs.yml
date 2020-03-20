@@ -14,8 +14,6 @@ nav:
   - Home: index.md
   - Homelab:
       - introduction: homelab/introduction.md
-      - host-setup: homelab/host-setup.md
-      - traefik: homelab/traefik.md
 
 theme:
   name: 'material'
