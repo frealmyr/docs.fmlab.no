@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Deploy mkdocs
-        uses: frealmyr/mkdocs-deploy-gh-pages@master
+        uses: mhausenblas/mkdocs-deploy-gh-pages@master
         env:
           CUSTOM_DOMAIN: fmlab.no
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
