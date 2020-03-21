@@ -14,9 +14,12 @@ nav:
   - Home: index.md
   - Homelab:
       - Introduction: homelab/introduction.md
+  - Testing: testing.md
 
 theme:
   name: 'material'
+  logo:
+    icon: 'developer_board'
   palette:
     primary: 'deep purple'
     accent: 'purple'
@@ -24,5 +27,16 @@ theme:
     text: 'Source Sans Pro'
     code: 'Source Code Pro'
 
+plugins:
+  - search
+  - img2fig
+  - bootstrap-tables
+  - git-revision-date-localized
+  - minify:
+      minify_html: true
+
 extra:
   disqus: 'fmlab'
+
+extra_css:
+  - assets/css/tables.css

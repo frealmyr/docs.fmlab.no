@@ -1,0 +1,2 @@
+mkdocs-img2fig-plugin
+mkdocs-bootstrap-tables-plugin
