@@ -1,38 +1,40 @@
-I wanted to create a blog series dedicated to those who wish to configure and run a decent homelab using only a single-node host without any fancy hardware.
+This is my blog series dedicated to those who wish to configure and run a decent homelab using only a single-node host without any fancy hardware.
 
-With how powerful barebone computers, or even single-board computers like the Raspberry Pi 4 as become. I no longer see the appeal for buying dedicated server hardware, such as racks and NAS.
+## My current hardware
 
-This is obviously a personal preference, as i have no need for highly-available services, nor do i have tons of users. (3-4  users at most).
+Everything runs on a single Intel NUC7i3 barebone machine, with the following specs and attached storage.
 
-Even so, i feel comfortable with my current setup. As i have some decent backup routines, and a monitoring stack with alerting if hardware is about to break.
+### Specs
 
-## Current hardware
+  - Intel Core i3-7100U (0.8GHz-2.40GHz, 3mb Cache)
+  - 16GB DDR4-2133MHz
+  - Intel I219-LM Gitabit Ethernet
+  - Intel Wireless-AC 8265 2x2 WiFi
 
-**Intel NUC7i3**
+### Storage
 
-  - CPU: Intel Core i3-7100U (0.8GHz-2.40GHz, 3mb Cache)
-  - RAM: 16GB DDR4-2133MHz
-  - SSD: WD Green 480GB M.2
+  - **SSD:** WD Green 480GB M.2
     - Root filesystem
     - Home folder
     - Network share
-  - SSD: Intel 520 60GB 2.5" _(Wear sacrifice)_
+  - **SSD:** Intel 520 60GB 2.5" _(Wear sacrifice)_
     - `/var/log`
     - Docker container databases
     - Swap location for `/tmp` (when it runs out of ram)
-  - USB: WD MyBook V2 8TB
+  - **USB:** WD MyBook V2 8TB
     - Network share
     - Media location
-  - USB: WD MyBook V2 8TB
+  - **USB:** WD MyBook V2 8TB
     - Network share
     - Nightly backups using [rsync](https://linux.die.net/man/1/rsync)
       - Backup of important folders
       - Backup of personal media favorites
     - Backup folders are synced to cloud service
 
-The NUC7i3 runs 40+ docker images simultaneously, adblock all LAN dns traffic using [pihole](https://github.com/pi-hole/pi-hole), stream media over network using [jellyfin](https://github.com/jellyfin/jellyfin), run a full [prometheus](https://github.com/prometheus/prometheus) stack, automatically finds and download content to HDDs, runs a VR modded minecraft server and plays 4K content to a connected TV using [kodi](https://github.com/xbmc/xbmc).
+The NUC7i3 have about 40+ docker images running simultaneously.
+It runs adblock on all dns traffic using [pihole](https://github.com/pi-hole/pi-hole), stream media over network using [jellyfin](https://github.com/jellyfin/jellyfin), run a full [prometheus](https://github.com/prometheus/prometheus) stack, hosts a few office applications, automatically finds and download media content to HDDs, runs a VR modded minecraft server and plays 4K content to a connected TV using [kodi](https://github.com/xbmc/xbmc) on movie nights.
 
-The NUC can normally handle this at the same time, without any problems. The exception being CPU intensive tasks such as transcoding or a highly populated game server.
+The NUC can normally handle all of the above, at the same time without any problems. The exception being CPU intensive tasks, such as media transcoding or a highly populated game server.
 
 ## The Homelab
 
@@ -46,6 +48,6 @@ For network routing, i use [traefik](https://containo.us/traefik/), which can ro
 
 All of the running docker images are kept up to date using [watchtower](https://github.com/containrrr/watchtower), which scans for new docker images periodically, and updates these seamlessly.
 
-There is also a monitoring stack with Prometheus, Alertmanager and Grafana. Which gives me a full overview of the current resource utilization, and customized alerting for events, such as a disk that reports bad health over S.M.A.R.T.
+There is also a monitoring stack with Prometheus, Alertmanager and Grafana. Which gives me a full overview of the current resource utilization, and customized alerting for events. If a harddrive reports bad health over the S.M.A.R.T. protocol, i will get a slack message with the warning shortly afterwards.
 
-In the next pages, i will create guides for how to achieve this homelab setup.
+In the next pages, i will create a few guides for how to achieve this homelab setup.
