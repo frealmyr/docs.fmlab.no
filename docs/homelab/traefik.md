@@ -15,15 +15,15 @@ Note: If you do not have a FQDN, you can remove port 443 from the configuration 
 - Clone repository
 - Update traefik.toml with your email, domain and subdomain information for Let's Encrypt certification issuing
 - Set the correct permissions for the acme.json file
-```
+```bash
 chmod 600 acme.json
 ```
 - Create a docker network that will be used for reverse proxy across docker containers:
-```
+```bash
 docker network create web
 ```
 - Start the docker container
-```
+```bash
 docker-compose up -d
 ```
 - Visit http://your-domain.com:8080 to check if Traefik is running
