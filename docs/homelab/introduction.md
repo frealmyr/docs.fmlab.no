@@ -13,18 +13,18 @@ Everything runs on a single Intel NUC7i3 barebone machine, with the following sp
 
 ### Storage
 
-  - **SSD:** WD Green 480GB M.2
+  - SSD: WD Green 480GB M.2
     - Root filesystem
     - Home folder
     - Network share
-  - **SSD:** Intel 520 60GB 2.5" _(Wear sacrifice)_
+  - SSD: Intel 520 60GB 2.5" _(Wear sacrifice)_
     - `/var/log`
     - Docker container databases
     - Swap location for `/tmp` (when it runs out of ram)
-  - **USB:** WD MyBook V2 8TB
+  - USB: WD MyBook V2 8TB
     - Network share
     - Media location
-  - **USB:** WD MyBook V2 8TB
+  - USB: WD MyBook V2 8TB
     - Network share
     - Nightly backups using [rsync](https://linux.die.net/man/1/rsync)
       - Backup of important folders
@@ -36,7 +36,7 @@ It runs adblock on all dns traffic using [pihole](https://github.com/pi-hole/pi-
 
 The NUC can normally handle all of the above, at the same time without any problems. The exception being CPU intensive tasks, such as media transcoding or a highly populated game server.
 
-## The Homelab
+# The Homelab
 
 My homelab configuration is, except from the host, entirely hosted from docker images. As there is [little overhead](https://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf) compared to running software on the host itself.
 
