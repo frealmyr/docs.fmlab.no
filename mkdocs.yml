@@ -14,6 +14,7 @@ nav:
   - Home: index.md
   - Homelab:
       - Introduction: homelab/introduction.md
+      - Host setup: homelab/host-setup.md
       - Traefik: homelab/traefik.md
   - Testing: testing.md
 
@@ -44,3 +45,5 @@ extra:
 
 extra_css:
   - assets/css/tables.css
+  - assets/css/dark_theme.css
+  - assets/css/codehilite.css
