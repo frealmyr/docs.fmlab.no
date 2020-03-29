@@ -14,6 +14,7 @@ nav:
   - Home: index.md
   - Homelab:
       - Introduction: homelab/introduction.md
+      - Traefik: homelab/traefik.md
   - Testing: testing.md
 
 theme:
