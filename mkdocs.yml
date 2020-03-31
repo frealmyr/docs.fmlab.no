@@ -1,4 +1,4 @@
-site_name: "Frealmyr's Homelab"
+site_name: "FM Lab"
 site_url: 'https://fmlab.no/'
 
 site_author: 'Fredrick Myrvoll'
@@ -21,16 +21,15 @@ nav:
 theme:
   name: 'material'
   logo:
-    icon: 'developer_board'
+    icon: 'dns'
   palette:
-    primary: 'deep purple'
+    primary: 'cyan'
     accent: 'purple'
   font:
     text: 'Source Sans Pro'
     code: 'Source Code Pro'
 
 plugins:
-  - search
   - img2fig
   - bootstrap-tables
   - git-revision-date-localized
@@ -38,12 +37,14 @@ plugins:
       minify_html: true
 
 markdown_extensions:
-  - codehilite
+  - codehilite:
+      linenums: true
 
 extra:
   disqus: 'fmlab'
 
 extra_css:
   - assets/css/tables.css
+  - assets/css/images.css
   - assets/css/dark_theme.css
   - assets/css/codehilite.css

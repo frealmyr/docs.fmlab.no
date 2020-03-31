@@ -3,7 +3,7 @@
 A simple configuration for running Traefik as a reverse proxy for other docker containers in a home lab.
 Also gives the benefit of easy setup and automatic renewal of Let's Encrypt certificates, for both domain and subdomains.
 
-### Prerequisite:
+## Prerequisite:
 - You have access to a FQDN
 - Subdomains have been added to the FQDN DNS and is active
 - Docker and docker-compose is installed
@@ -12,7 +12,7 @@ Also gives the benefit of easy setup and automatic renewal of Let's Encrypt cert
 
 Note: If you do not have a FQDN, you can remove port 443 from the configuration files and comment out the `[acme]` block from traefik.toml. This will however limit you to using unecrypted traffic over HTTP.
 
-### How to use:
+## How to use:
 - Clone repository
 - Update traefik.toml with your email, domain and subdomain information for Let's Encrypt certification issuing
 - Set the correct permissions for the acme.json file
@@ -30,7 +30,7 @@ docker-compose up -d
 - Visit http://your-domain.com:8080 to check if Traefik is running
 - Traefik is now ready to be used
 
-## docker-compose.yml
+### docker-compose.yml
 
 ```yaml
 version: '3.5'
@@ -102,7 +102,7 @@ services:
     restart: unless-stopped
 ```
 
-## traefik.yml
+### traefik.yml
 
 ```yaml
 entryPoints:
@@ -146,7 +146,7 @@ metrics:
 
 # dynamic configs
 
-## dashboard.yml
+### dashboard.yml
 
 ```yaml
 http:
@@ -161,7 +161,7 @@ docker:
 ```
 
 
-## redirect.yml
+### redirect.yml
 
 ```yaml
 http:

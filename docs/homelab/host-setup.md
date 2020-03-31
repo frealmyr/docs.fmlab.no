@@ -8,16 +8,15 @@ I also have provided a bash script that will do everything described in this gui
 
 ## SSH
 
-SSH will be the preferenced way for remotely connecting to the host for managing our homelab.
+SSH will be the preferred way for remotely connecting to the host. You can install a SSH server on Ubuntu by running
 
-You can install the SSH server on Ubuntu by running
 ```bash
 sudo apt install ssh
 ```
 
->By default, SSH allows password login on the local network, but for connections outside the network, it only allows authorized public keys for authentication.
+>By default, SSH allows password login for the local network, but for connections outside the network it will only allow authorized public keys for authentication.
 
-To allow a new client to connect to the server outside the local network, without providing a password. We can use `ssh-copy-id` to connect over SSH, and then add the remote client's public key to the server.
+To allow a new client to connect to the server outside the local network, without providing a password. We can use `ssh-copy-id` to connect to the server and add the remote client's public key
 
 ```bash
 ssh-copy-id server_user_name@server_ip
@@ -25,7 +24,7 @@ ssh-copy-id server_user_name@server_ip
 
 If you have not yet created a public key for the client you are working from, you can run `ssh-keygen -C "DESIRED_NAME"` to generate a new key. Hit enter a few times, and you should now have a public key.
 
->If you provide a passhrase upon generation, you will need to provide that passhrase each time that you access the key.
+>If you provide a passphrase upon generation, you will need to provide that passphrase each time that you access the key.
 
 To output the public key on your local client, run the command
 ```bash
@@ -42,12 +41,16 @@ If you wish to run the tested and proven way of installing Docker on Ubuntu, i w
 
 The default way to install docker is to grab the latest debian package and install it on your host using your _root_ user. Docker will then run the daemon, containers and volumes as _root_.
 
-If a container is configured without any security measures and is running as root while it's publicly available. It could be a potential attack vector for gaining [root access to the underlying host operator system](https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/).
-In general, one should not run shit as root, instead make the applications run with dedicated users and groups.
+![ ](\homelab\images\sandwich.png#center)
+
+If a container is configured without any security measures and is running as root while it's publicly available. It could be a potential attack vector for gaining [root access to the underlying host operating system](https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/).
+
+>In general, one should not run applications as root. Instead make the applications run under dedicated users and/or groups.
 
 With these things in mind, i've recently been trying out the experimental [rootless docker mode](https://docs.docker.com/engine/security/rootless/). Where the concept is to execute the Docker daemon and containers inside a user namespace, instead of running everything as root.
 
 There are however [some limitations while going rootless](https://docs.docker.com/engine/security/rootless/#known-limitations), as the following features are not supported:
+
 - [AppArmor](https://cloud.google.com/container-optimized-os/docs/how-to/secure-apparmor)
 - [Checkpoint (Experimental)](https://docs.docker.com/engine/reference/commandline/checkpoint/)
 - [Overlay network](https://docs.docker.com/network/overlay/)
@@ -125,10 +128,10 @@ The versions in the Ubuntu LTS repository is often a bit dated, so let's install
 
 ```bash
 curl -s https://api.github.com/repos/docker/compose/releases/latest \
-| grep "browser_download_url.*docker-compose-`uname -s`-`uname -m`" \
-| cut -d : -f 2,3 \
-| tr -d \" \
-| wget -qi -
+  | grep "browser_download_url.*docker-compose-`uname -s`-`uname -m`" \
+  | cut -d : -f 2,3 \
+  | tr -d \" \
+  | wget -qi -
 
 SUMFILE=$(cat docker-compose-Linux-x86_64.sha256 | cut -d ' ' -f 1)
 CHECKFILE=$(sha256sum docker-compose-Linux-x86_64 | cut -d ' ' -f 1)
