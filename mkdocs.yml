@@ -16,6 +16,7 @@ nav:
       - Introduction: homelab/introduction.md
       - Host setup: homelab/host-setup.md
       - Rootless docker: homelab/rootless-docker.md
+      - Traefik(WIP): homelab/traefik.md
   - Current hardware: current-hardware.md
 
 theme:
