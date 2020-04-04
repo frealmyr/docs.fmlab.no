@@ -20,6 +20,10 @@ Main headlines
   color: white !important;
 }
 
+.md-typeset h4 {
+  font-weight: 700;
+}
+
 .md-main__inner {
   padding-top: 0 !important;
 }

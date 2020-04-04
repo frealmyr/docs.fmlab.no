@@ -1,54 +1,132 @@
-This is my blog series dedicated to those who wish to configure and run a decent homelab using only a single-node host without any fancy hardware.
+I made this blog series for those who wish to configure and run a decent homelab, using only a single-node host without any fancy hardware.
+
+Docker containers will be a core component in these series, if you are not familiar with it, and don't how it works on a high level. I would suggest to spend some time reading articles on this topic.
 
 ## The Homelab
 
-My homelab configuration is, except from the host, entirely hosted from docker images. As there is [little overhead](https://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf) compared to running software on the host itself.
+My homelab configuration is, except from the host, entirely based on docker images. As there is [little overhead](https://domino.research.ibm.com/library/cyberdig.nsf/papers/0929052195DD819C85257D2300681E7B/$File/rc25482.pdf) compared to running software on the host itself.
 
-Every stack gets their own folder, with it's own `.env`  and `docker-compose.yml` file.
+In my home folder i have a `Homelab` folder and sub-folders with category names, the structure looks like this
 
-I use [pihole](https://github.com/pi-hole/pi-hole) to adblock DNS queries on the LAN, and make use of the [dnsmasq](http://www.thekelleys.org.uk/dnsmasq/doc.html) DNS server in the pihole container to direct any `appname.lab` DNS queries to my server.
+```bash
+frealmyr@SRV:~$ tree -L 2 -d Homelab/
+Homelab/
+├── Entertainment
+│   ├── jellyfin
+│   ├── kiwix
+│   ├── minecraft
+│   ├── wallabag
+├── Office
+│   ├── archivebox
+│   ├── bookstack
+│   ├── homepage
+│   ├── homer
+│   ├── kanboard
+│   ├── kimai
+│   ├── miniflux
+│   └── simple-portfolio
+└── System
+    ├── ikevpn
+    ├── networks
+    ├── openvpn
+    ├── pihole
+    ├── portainer
+    ├── prometheus
+    ├── samba
+    ├── traefik
+    └── watchtower
+```
 
-For network routing, i use [traefik](https://containo.us/traefik/), which can route traffic on my LAN and to the Internet, based on the labels which are set on the application.
+Each stack gets their own folder, with it's own `.env` for local variables and a `docker-compose.yml` file for the docker stack.
 
-All of the running docker images are kept up to date using [watchtower](https://github.com/containrrr/watchtower), which scans for new docker images periodically, and updates these seamlessly.
+```bash
+frealmyr@SRV:~$ tree -L 2 -a Homelab/Office/
+Homelab/Office/
+├── archivebox
+│   ├── config
+│   ├── data
+│   ├── docker-compose.yml
+│   └── .env
+├── bookstack
+│   ├── docker-compose.yml
+│   └── .env
+├── homepage
+│   ├── config
+│   ├── docker-compose.yml
+│   ├── .env
+├── homer
+│   ├── config
+│   ├── docker-compose.yml
+│   └── .env
+├── kanboard
+│   ├── docker-compose.yml
+│   ├── .env
+│   └── plugins
+├── kimai
+│   ├── config
+│   ├── create-superuser.sh
+│   ├── docker-compose.yml
+│   ├── .env
+│   └── plugins
+├── miniflux
+│   ├── docker-compose.yml
+│   └── .env
+└── simple-portfolio
+    ├── config
+    ├── docker-compose.yml
+    ├── .env
+    ├── LICENSE.md
+    └── README.md
+```
 
-There is also a monitoring stack with Prometheus, Alertmanager and Grafana. Which gives me a full overview of the current resource utilization, and customized alerting for events. If a harddrive reports bad health over the S.M.A.R.T. protocol, i will get a slack message with the warning shortly afterwards.
+Docker-compose will pick up any `.env` files that resides in the same folder as `docker-compose.yml`, and will make the variables in `.env` available by using `${VAR_NAME}` in the `docker-compose.yml` file.
+
+Docker will also append the folder name as the project name when creating docker resources.
+
+>You can override this by using the `--project-name DESIRED_NAME` argument with `docker-compose` commands. However, it's far easier and more maintainable to just name the folder as the project name.
+
+How does this look in practice?
+
+In the `bookstack` folder i declare the following resources in the `docker-compose.yml`:
+
+```yaml
+networks:
+  internal:
+
+volumes:
+  uploads:
+  mysql_data:
+  storage_uploads:
+```
+
+This will then result in the following docker resources being created:
+
+```bash
+frealmyr@SRV:~$ docker volume list | grep bookstack | awk '{print $2}'
+bookstack_mysql_data
+bookstack_storage_uploads
+bookstack_uploads
+
+frealmyr@SRV:~$ docker network list | grep bookstack | awk '{print $2}'
+bookstack_internal
+```
+
+For easier maintenance of the different stacks, i've created a bash script that can start/stop all of the stacks, with a optional category argument. [The script is available in the Homelab folder.](https://github.com/frealmyr/fmlab.no/blob/master/Homelab/homelab.sh)
+
+### What's running in my Homelab?
+
+In my homelab, i use [pihole](https://github.com/pi-hole/pi-hole) to adblock DNS queries on the LAN, and make use of the [dnsmasq](http://www.thekelleys.org.uk/dnsmasq/doc.html) DNS server in the pihole container to direct any `appname.lab` DNS queries to my server.
+
+For reverse proxy i use [traefik](https://containo.us/traefik/), which can route traffic on my LAN-only domain and/or my FQDN, based on which labels that are set on the docker container.
+
+With the two stack above, i can dynamically create sub-domains in the local `.lab` domain for all my services.
+
+If i wanted to make a transmission instance available for my local network only, i could just add a label to the docker container, which traefik will resolve from `transmission.lab` to the docker container. Any device that are connected to my LAN or VPN can then use this address.
+
+This is way simpler than maintaining a html page with a list of the port numbers whenever i create a new service.
+
+All of the running docker images are kept up to date using [watchtower](https://github.com/containrrr/watchtower), which scans for new docker images periodically, and updates these seamlessly. Watchtower also sends a slack message when it updates the applications.
+
+I also have a monitoring stack with Prometheus, Alertmanager and Grafana. Which gives me a full overview of the current resource utilization, and customized alerting for events. If a harddrive reports bad health over the S.M.A.R.T. protocol, i will get a slack message with the warning shortly afterwards.
 
 In the next pages, i will create a few guides for how to achieve this homelab setup.
-
-
-## My current hardware
-
-Everything runs on a single Intel NUC7i3 barebone machine, with the following specs and attached storage.
-
-### Specs
-
-  - Intel Core i3-7100U (0.8GHz-2.40GHz, 3mb Cache)
-  - 16GB DDR4-2133MHz
-  - Intel I219-LM Gitabit Ethernet
-  - Intel Wireless-AC 8265 2x2 WiFi
-
-### Storage
-
-  - SSD: WD Green 480GB M.2
-    - Root filesystem
-    - Home folder
-    - Network share
-  - SSD: Intel 520 60GB 2.5" _(Wear sacrifice)_
-    - `/var/log`
-    - Docker container databases
-    - Swap location for `/tmp` (when it runs out of ram)
-  - USB: WD MyBook V2 8TB
-    - Network share
-    - Media location
-  - USB: WD MyBook V2 8TB
-    - Network share
-    - Nightly backups using [rsync](https://linux.die.net/man/1/rsync)
-      - Backup of important folders
-      - Backup of personal media favorites
-    - Backup folders are synced to cloud service
-
-The NUC7i3 have around 40+ docker images running simultaneously.
-It runs adblock on all dns traffic using [pihole](https://github.com/pi-hole/pi-hole), stream media over network using [jellyfin](https://github.com/jellyfin/jellyfin), run a full [prometheus](https://github.com/prometheus/prometheus) stack, hosts a few office applications, automatically finds and download media content to HDDs, runs a VR modded minecraft server and plays 4K content to a connected TV using [kodi](https://github.com/xbmc/xbmc) on movie nights.
-
-The NUC can normally handle all of the above, at the same time without any problems. The exception being CPU intensive tasks, such as media transcoding or a highly populated game servers.
