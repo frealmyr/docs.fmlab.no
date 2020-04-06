@@ -6,8 +6,4 @@ This whole page is hosted by github pages, with a github action that automagical
 
 This entire site is [publicly available here.](https://github.com/frealmyr/fmlab.no/)
 
-![](\assets\images\nothing_to_see_here_naked_gun.gif)
-
-### This site is currently a work-in-progress.
-
 If you find errors, please report them to this [project's issue tracker](https://github.com/frealmyr/fmlab.no/issues).

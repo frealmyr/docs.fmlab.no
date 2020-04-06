@@ -1,12 +1,54 @@
+### Custom domain name
 
-# This is a work-in-progress, parts may be missing
+I recommend you to get yourself a cheap domain name for personal use, it will make visiting your hosted applications outside the network a lot easier.
 
-I recommend you to get yourself a cheap domain name for personal use, if you don't do this. You will need to keep track of the public IP address, and update it on you device's hosts file.
+But you don't absolutely have to buy a domain name, there are some options you could explore:
 
+- You could use a dynamic DNS services such as No-IP or DynDNS.
+- You could keep track of the public IP address yourself, and keep it  updated in your device's hostfile. (Certificates needs to be self-signed.)
+- You could set up a [split tunnel VPN](https://en.wikipedia.org/wiki/Split_tunneling) on your device, and keep it connected to the homelab subnet when you need to access services. (Need to keep track of public IP as well.)
 
-#### Create docker network
+This guide also have parts that requires a FQDN to work, if you don't have a FQDN. Then you can remove every bit containing FQDN and certificates from this guide. Then research how to set up self-signed certificates using Traefik.
 
-First, lets make two docker networks for reverse proxying. One for our local network, and one for accessing externally outside our network.
+### What is reverse proxying?
+
+A reverse proxy server is a server that receives requests and forward them to the appropriate backend services.
+
+Basic example:
+
+- The reverse proxy server receives a HTTP request that originated from the url `http://home.lab`.
+- The server checks it's configuration for any services that is configured to receive request from `host.lab`.
+- If this service exist, the server will redirect the traffic to this service.
+- If it doesn't exist, then it will just return a `404 not found` [HTTP status code](https://http.cat/404).
+
+### Why use Traefik for reverse proxying?
+
+There are three obvious choices for small-scale reverse proxing; [Nginx](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/), [HAProxy](http://www.haproxy.org/) and [Traefik](https://docs.traefik.io/).
+
+[Nginx](https://nginx.org/en/) a popular reverse proxy, known for its high-performance and stability. Many have fiddled with it as a web server before, and it's quite easy to configure as a reverse proxy. The downside is that the freemium version lacks health-checks, JWT authorization, real-time metrics and dynamic reconfiguration without reloads. This is due to F5's commercial offering [Nginx Plus](https://www.nginx.com/products/nginx/).
+
+[HAProxy](https://github.com/jcmoraisjr/haproxy-ingress) is another well known reverse proxy and load balancer. It has DNS based service discovery, soft configuration reload, health checking, tons of detailed metrics, [and more](https://en.wikipedia.org/wiki/HAProxy#Features). It also has a fairly good reputation for [on-premise](https://en.wikipedia.org/wiki/On-premises_software) [Kubernetes](https://kubernetes.io/) clusters, as the developers prioritize optimization, resource efficiency and high speed networking.
+
+[Traefik](https://docs.traefik.io/) is a relatively new (_released 2016_) [edge router](https://docs.traefik.io/), which was created with [microservices](https://en.wikipedia.org/wiki/Microservices) in mind. A key feature in Traefik is [configuration discovery](https://docs.traefik.io/providers/overview/), where Traefik will query a provider API, such as the Docker API, to find relevant information and configure the routing. If you make changes to the configuration or labels on a docker container, it will dynamically update Traefik's routing configuration. [You can read more about this here.](https://docs.traefik.io/providers/overview/)
+
+>Since Docker a the central component in my homelab setup, and the features that are offered out-of-box fits my use-case quite nicely. It just makes sense to use Traefik in my case.
+
+With Traefik, enabling reverse proxying is as simple as adding three labels to containers. If i need more middlewares on a container, like for instance, protecting an app with [SSO authorization](https://auth0.com/blog/what-is-and-how-does-single-sign-on-work/). Then i can just add another label, and Traefik will enable this for that container.
+
+Here are some neat features you get with Traefik:
+
+  - Auto service discovery using the Docker API
+  - Changes are reflected in realtime (No manual config reloads needed)
+  - Configuration can be written in yaml
+  - [Automatic certificate issuing](https://docs.traefik.io/https/acme/) using [LetsEncrypt](https://letsencrypt.org/)
+  - [Metrics](https://docs.traefik.io/observability/metrics/overview/) (Prometheus/REST)
+  - [Tracing](https://docs.traefik.io/observability/tracing/overview/) (Jaeger/ELK)
+  - Supports [TCP](https://docs.traefik.io/routing/services/#configuring-tcp-services)/[UDP](https://docs.traefik.io/routing/services/#configuring-udp-services)
+  - Lots of built-in [middleware](https://docs.traefik.io/middlewares/overview/) for tweaking requests before they reach the service. Such as [circuit breakers](https://docs.traefik.io/middlewares/circuitbreaker/), [retry mechanics](https://docs.traefik.io/middlewares/retry/), [rate limiting](https://docs.traefik.io/middlewares/ratelimit/) and [forwardAuth](https://docs.traefik.io/middlewares/forwardauth/) for JWT authorization.
+
+### Create docker network
+
+First, lets make two docker networks dedicated to reverse proxying. One for our local network, and one for accessing externally outside our network.
 
 Run the following commands to create the docker networks, they will be created in [bridge mode](https://docs.docker.com/network/#network-drivers) and will persist after reboot
 
@@ -17,7 +59,7 @@ docker network create web
 
 >We need to run the docker commands manually, since defining the network in `docker-compose.yml` will take down it down if we run `docker-compose down`, which will make dependent containers fail to start.
 
-#### Basic traefik container
+### Basic traefik container
 
 We can now create the `docker-compose.yml` file for traefik
 
@@ -66,7 +108,7 @@ services:
     restart: unless-stopped
 ```
 
-| Line       | Description   |
+| Line | Description   |
 | :--------------- | :------ |
 | L3:L6 | For networks, we add the docker network we created earlier as a external network. Which means that docker will try to connect to this network, but never create nor destroy it. We also have a internal network, which will only be used between services in this docker-compose. |
 | L13 | Change the timezone to your current one, this will be used by things like traefik dashboard and logs. |
@@ -77,7 +119,7 @@ services:
 | L34 | Here we can define which docker APIs that are available for read-only access, you can [read more about the available APIs here](https://github.com/Tecnativa/docker-socket-proxy#grant-or-revoke-access-to-certain-api-sections). |
 | L36 | If you use a **rootless docker** install, then this is the correct volume. If you are using the standard docker install method, change this to `/var/run/docker.sock:/var/run/docker.sock`. |
 
-#### Basic traefik configuration files
+### Basic Traefik configuration files
 
 Now that we have the `docker-compose.yml` in place, we need to create the configuration files for traefik.
 
@@ -136,7 +178,7 @@ api:
 | L21 | Traefik will monitor this directory for configuration files, and automatically reload these if there are any changes made to the files. |
 | L24 | Readies the dashboard by enabling the necessary APIs, further configuration needed. |
 
-##### ACME certificate file
+#### ACME certificate file
 
 ACME requires a `acme.json` file for storing certificates, create it by running
 
@@ -145,7 +187,7 @@ touch acme.json
 chmod 600 acme.json
 ```
 
-##### Starting Traefik
+#### Starting Traefik
 
 We have now added all of the necessary static configuration files for running Traefik. We can now start Traefik to see if it is running properly
 
@@ -153,9 +195,7 @@ We have now added all of the necessary static configuration files for running Tr
 docker-compose up
 ```
 
-
-
-##### Dynamic configuration files
+### Dynamic configuration files
 
 Every configuration file that you create inside the `dynamic` folder, will be automatically reloaded if you makes changes. This makes it easy to create new routing rules, as you can listen for the Traefik container logs and check the endpoint while editing files for efficient setup.
 
