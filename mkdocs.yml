@@ -15,8 +15,11 @@ nav:
   - Homelab:
       - Introduction: homelab/introduction.md
       - Host setup: homelab/host-setup.md
+      - Traefik: homelab/traefik.md
+        - Using Traefik: homelab/traefik-usage.md
+      - PiHole: homelab/pihole.md
+  - Advanced Topics:
       - Rootless docker: homelab/rootless-docker.md
-      - Traefik(WIP): homelab/traefik.md
   - Current hardware: current-hardware.md
 
 theme:
