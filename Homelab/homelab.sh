@@ -24,10 +24,10 @@ if [ $1 = "start" ]; then
   fi
 elif [ $1 = "stop" ]; then
   if [ -z $2 ]; then
-    echo "homelab: starting all stacks.."
+    echo "homelab: stopping all stacks.."
     for d in */; do # only match directories
       for subd in $d*/; do # only match sub-directories
-        printf "\n%40s\n" "homelab: ${green}now starting ${yellow}$subd ${normal}"
+        printf "\n%40s\n" "homelab: ${green}now stopping ${yellow}$subd ${normal}"
         ( cd "$subd" && docker-compose down ) # Use a subshell to avoid having to cd back to the root each time.
       done
     done
