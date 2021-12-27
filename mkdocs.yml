@@ -34,14 +34,6 @@ theme:
     text: 'Source Sans Pro'
     code: 'Source Code Pro'
 
-plugins:
-  - img2fig
-  - bootstrap-tables
-
-markdown_extensions:
-  - codehilite:
-      linenums: true
-
 extra:
   disqus: 'fmlab'
 
