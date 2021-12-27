@@ -1,3 +1,4 @@
 pygments
 mkdocs-img2fig-plugin
 mkdocs-bootstrap-tables-plugin
+git-revision-date-localized
