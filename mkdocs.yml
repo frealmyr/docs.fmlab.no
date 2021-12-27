@@ -33,12 +33,3 @@ theme:
   font:
     text: 'Source Sans Pro'
     code: 'Source Code Pro'
-
-extra:
-  disqus: 'fmlab'
-
-extra_css:
-  - assets/css/tables.css
-  - assets/css/images.css
-  - assets/css/dark_theme.css
-  - assets/css/codehilite.css
