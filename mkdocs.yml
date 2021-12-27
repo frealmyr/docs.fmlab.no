@@ -1,11 +1,11 @@
-site_name: "FM Lab"
-site_url: 'https://fmlab.no/'
+#site_name: "FM Lab"
+#site_url: 'https://fmlab.no/'
 
-site_author: 'Fredrick Myrvoll'
-site_description: 'Guides & tips for the homelab community'
+#site_author: 'Fredrick Myrvoll'
+#site_description: 'Guides & tips for the homelab community'
 
-repo_name: 'frealmyr/fmlab.no'
-repo_url: 'https://github.com/frealmyr/fmlab.no'
+#repo_name: 'frealmyr/fmlab.no'
+#repo_url: 'https://github.com/frealmyr/fmlab.no'
 
 strict: true # Fail build if there are broken links
 docs_dir: docs/
