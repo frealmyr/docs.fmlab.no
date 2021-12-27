@@ -37,8 +37,6 @@ theme:
 plugins:
   - img2fig
   - bootstrap-tables
-  - minify:
-      minify_html: true
 
 markdown_extensions:
   - codehilite:
