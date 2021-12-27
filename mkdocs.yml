@@ -37,7 +37,6 @@ theme:
 plugins:
   - img2fig
   - bootstrap-tables
-  - git-revision-date-localized
   - minify:
       minify_html: true
 
