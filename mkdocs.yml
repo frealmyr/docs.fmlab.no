@@ -1,11 +1,11 @@
-site_name: "FM Lab"
-site_url: 'https://fmlab.no/'
+site_name: FM Lab
+site_url: https://fmlab.no/
 
-site_author: 'Fredrick Myrvoll'
-site_description: 'Guides & tips for the homelab community'
+site_author: Fredrick Myrvoll
+site_description: Tutorials, tips and tricks for homelabs and cloud infrastructure whenever i feel a writers itch
 
-repo_name: 'frealmyr/fmlab.no'
-repo_url: 'https://github.com/frealmyr/fmlab.no'
+repo_name: frealmyr/fmlab.no
+repo_url: https://github.com/frealmyr/fmlab.no
 
 strict: true # Fail build if there are broken links
 docs_dir: docs/
@@ -25,22 +25,22 @@ nav:
 
 theme:
   name: material
-  logo: assets/images/logo.png
-  favicon: assets/images/favicon.png
+  icon:
+    logo: material/dns
+  #favicon: assets/images/favicon.png
   palette:
-    primary: cyan
+    scheme: slate
+    primary: deep purple
     accent: purple
   font:
     text: Source Sans Pro
     code: Source Code Pro
   features:
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - navigation.tracking
+    - header.autohide
     - navigation.expand
     - navigation.indexes
     - navigation.top
-    - header.autohide
+    - navigation.tracking
     - search.suggest
 
 plugins:
@@ -49,7 +49,7 @@ plugins:
   - git-revision-date-localized
   - mermaid2:
       arguments:
-        theme: 'dark'
+        theme: dark
   - search
 
 markdown_extensions:
@@ -69,8 +69,9 @@ markdown_extensions:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
-#extra_css:
-  #- assets/css/tables.css
-  #- assets/css/images.css
+extra_css:
+  - assets/css/tables.css
+  - assets/css/images.css
   #- assets/css/dark_theme.css
-  #- assets/css/codehilite.css
+  - assets/css/codehilite.css
+  - assets/css/footer.css
