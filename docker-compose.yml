@@ -1,0 +1,10 @@
+version: "3.5"
+
+services:
+  mkdocs:
+    container_name: mkdocs-fmlab
+    build: .
+    ports:
+      - 8000:8000
+    volumes:
+      - ${PWD}:/docs
