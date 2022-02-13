@@ -14,6 +14,7 @@ nav:
   - Home: index.md
   - Cloud infrastructure:
     - A take on monitoring:
+      - cloud/monitoring/index.md
       - Metrics: cloud/monitoring/metrics.md
   - Homelab:
       - Introduction: homelab/introduction.md
