@@ -1,4 +1,4 @@
-FROM squidfunk/mkdocs-material:latest
+FROM squidfunk/mkdocs-material:8.4.1
 
 WORKDIR /docs
 COPY ./requirements.txt .
