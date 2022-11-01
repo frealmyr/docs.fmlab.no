@@ -150,17 +150,14 @@ sudo rsync -av /volume2/homelab-tftp/base-image/ /volume2/homelab-tftp/e4-5f-01-
 Then configure the `/boot` entry in `/etc/fstab` for each folder, so that our RPi mounts their individual TFTP folders to `/boot` during boot.
 
 ```bash
-sudo tee /volume2/homelab-pxe/dc-a6-32-70-da-b0/etc/fstab > /dev/null << EOF
-proc  /proc proc  defaults  0 0
-10.10.0.10:/volume2/homelab-tftp/dc-a6-32-70-da-b0 /boot nfs defaults,vers=4,proto=tcp 0 0
+sudo tee /volume2/homelab-tftp/dc-a6-32-70-da-b0/cmdline.txt > /dev/null << EOF
+console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/dc-a6-32-70-da-b0,vers=3  rw  ip=dhcp elevator=deadline rootwait
 EOF
-sudo tee /volume2/homelab-pxe/e4-5f-01-87-3e-e1/etc/fstab > /dev/null << EOF
-proc  /proc proc  defaults  0 0
-10.10.0.10:/volume2/homelab-tftp/e4-5f-01-87-3e-e1 /boot nfs defaults,vers=4,proto=tcp 0 0
+sudo tee /volume2/homelab-tftp/e4-5f-01-87-3e-e1/cmdline.txt > /dev/null << EOF
+console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/e4-5f-01-87-3e-e1,vers=3  rw  ip=dhcp elevator=deadline rootwait
 EOF
-sudo tee /volume2/homelab-pxe/e4-5f-01-87-56-36/etc/fstab > /dev/null << EOF
-proc  /proc proc  defaults  0 0
-10.10.0.10:/volume2/homelab-tftp/e4-5f-01-87-56-36 /boot nfs defaults,vers=4,proto=tcp 0 0
+sudo tee /volume2/homelab-tftp/e4-5f-01-87-56-36/cmdline.txt > /dev/null << EOF
+console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/e4-5f-01-87-56-36,vers=3  rw  ip=dhcp elevator=deadline rootwait
 EOF
 
 ```
@@ -179,14 +176,17 @@ sudo rsync -av /volume2/homelab-pxe/base-image/ /volume2/homelab-pxe/e4-5f-01-87
 Then configure the rootfs entry in `cmdline.txt`, for mounting the filesystem share for each RPi:
 
 ```bash
-sudo tee /volume2/homelab-tftp/dc-a6-32-70-da-b0/cmdline.txt > /dev/null << EOF
-console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/dc-a6-32-70-da-b0,vers=4  rw  ip=dhcp elevator=deadline rootwait
+sudo tee /volume2/homelab-pxe/dc-a6-32-70-da-b0/etc/fstab > /dev/null << EOF
+proc  /proc proc  defaults  0 0
+10.10.0.10:/volume2/homelab-tftp/dc-a6-32-70-da-b0 /boot nfs defaults,vers=3,proto=tcp 0 0
 EOF
-sudo tee /volume2/homelab-tftp/e4-5f-01-87-3e-e1/cmdline.txt > /dev/null << EOF
-console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/e4-5f-01-87-3e-e1,vers=4  rw  ip=dhcp elevator=deadline rootwait
+sudo tee /volume2/homelab-pxe/e4-5f-01-87-3e-e1/etc/fstab > /dev/null << EOF
+proc  /proc proc  defaults  0 0
+10.10.0.10:/volume2/homelab-tftp/e4-5f-01-87-3e-e1 /boot nfs defaults,vers=3,proto=tcp 0 0
 EOF
-sudo tee /volume2/homelab-tftp/e4-5f-01-87-56-36/cmdline.txt > /dev/null << EOF
-console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/e4-5f-01-87-56-36,vers=4  rw  ip=dhcp elevator=deadline rootwait
+sudo tee /volume2/homelab-pxe/e4-5f-01-87-56-36/etc/fstab > /dev/null << EOF
+proc  /proc proc  defaults  0 0
+10.10.0.10:/volume2/homelab-tftp/e4-5f-01-87-56-36 /boot nfs defaults,vers=,proto=tcp 0 0
 EOF
 
 ```
