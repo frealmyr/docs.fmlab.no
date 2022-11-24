@@ -87,18 +87,18 @@ sudo losetup -f -P 2022-09-22-raspios-bullseye-arm64-lite.img
 losetup -l
 
 # Create base image folders
-mkdir /volume2/homelab-tftp/base-image \
-  /volume2/homelab-pxe/base-image
+mkdir /volume2/netboot/tftp/base-image \
+  /volume2/netboot/rootfs/base-image
 
 # Mount boot partition on loop device, copy to TFTP base folder
 sudo mkdir /mnt/raspbian
 sudo mount /dev/loop0p1 /mnt/raspbian
-sudo rsync -av /mnt/raspbian/ /volume2/homelab-tftp/base-image
+sudo rsync -av /mnt/raspbian/ /volume2/netboot/tftp/base-image
 sudo umount /mnt/raspbian
 
 # Mount filesystem partition on loop device, copy to PXE base folder
 sudo mount /dev/loop0p2 /mnt/raspbian
-sudo rsync -av /mnt/raspbian/ /volume2/homelab-pxe/base-image
+sudo rsync -av /mnt/raspbian/ /volume2/netboot/rootfs/base-image
 sudo umount /mnt/raspbian
 
 # Remove loop device, delete temporary files, navigate to root of volume
@@ -108,8 +108,8 @@ cd /volume2/
 rm -rf /volume2/@tmp/tmp-raspbian/
 
 # Configure base image
-sudo touch /volume2/homelab-tftp/base-image/ssh # Enable SSH
-echo 'mgmt:$6$lHSvqL6/e/avgblH$Rfi4XHNMMmBiOeAvu.FRfEB0zZIPQ1YyLzPWq0lCu08FBQ75Gbcim9T714NGHQ.V/RcwfKoHEtu7j.TwRaour0' | sudo tee /volume2/homelab-tftp/base-image/userconf.txt # Temporary user/pass, to be replaced with ansible
+echo 'notice me sshenpai' | sudo tee /volume2/netboot/tftp/base-image/ssh.txt # Enable ssh
+echo 'mgmt:$6$lHSvqL6/e/avgblH$Rfi4XHNMMmBiOeAvu.FRfEB0zZIPQ1YyLzPWq0lCu08FBQ75Gbcim9T714NGHQ.V/RcwfKoHEtu7j.TwRaour0' | sudo tee /volume2/netboot/tftp/base-image/userconf.txt # Temporary user/pass, to be replaced with ansible
 ```
 
 We now have a fresh copy of Rasbian as a baseline image which we can duplicate for each connecting RPi.
@@ -118,7 +118,7 @@ We now have a fresh copy of Rasbian as a baseline image which we can duplicate f
 
 Booting a Raspberry Pi using TFTP requires the following:
 
-  - A shared `bootcode.bin` file present on root of our `/volume2/homelab-tftp/` folder.
+  - A shared `bootcode.bin` file present on root of our `/volume2/netboot/tftp/` folder.
   - Individual folders under the TFTP nfs share, named after the RPi hardware serial number (by default), which contains the boot files.
   - Individual folders under the PXE nfs share, named after the RPi hardware serial number (by default), which contains the root filesystem
   - A DHCP server which hosts the RPi bootloader on PXE.
@@ -133,60 +133,61 @@ During network boot, RPi4 looks for TFTP/PXE sub-folders on the NFS share with t
 Copy the `bootcode.bin` from our base image folder into the root of our TFTP folder:
 
 ```bash
-sudo rsync -av /volume2/homelab-tftp/base-image/bootcode.bin /volume2/homelab-tftp
+sudo rsync -av /volume2/netboot/boot/base-image/bootcode.bin /volume2/netboot/boot
+
 ```
 
 ### 5.2. TFTP Boot folders
 
-Copy the base image boot folder contents, to sub-folders in `/volume2/homelab-tftp` with the mac addresses from the RPi devices:
+Copy the base image boot folder contents, to sub-folders in `/volume2/netboot/boot` with the mac addresses from the RPi devices:
 
 ```bash
-sudo rsync -av /volume2/homelab-tftp/base-image/ /volume2/homelab-tftp/dc-a6-32-70-da-b0
-sudo rsync -av /volume2/homelab-tftp/base-image/ /volume2/homelab-tftp/e4-5f-01-87-3e-e1
-sudo rsync -av /volume2/homelab-tftp/base-image/ /volume2/homelab-tftp/e4-5f-01-87-56-36
+sudo rsync -av /volume2/netboot/boot/base-image/ /volume2/netboot/boot/dc-a6-32-70-da-b0
+sudo rsync -av /volume2/netboot/boot/base-image/ /volume2/netboot/boot/e4-5f-01-87-3e-e1
+sudo rsync -av /volume2/netboot/boot/base-image/ /volume2/netboot/boot/e4-5f-01-87-56-36
 
 ```
 
 Then configure the `/boot` entry in `/etc/fstab` for each folder, so that our RPi mounts their individual TFTP folders to `/boot` during boot.
 
 ```bash
-sudo tee /volume2/homelab-tftp/dc-a6-32-70-da-b0/cmdline.txt > /dev/null << EOF
-console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/dc-a6-32-70-da-b0,vers=3  rw  ip=dhcp elevator=deadline rootwait
+sudo tee /volume2/netboot/boot/dc-a6-32-70-da-b0/cmdline.txt > /dev/null << EOF
+console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.11:/volume2/netboot/rootfs/dc-a6-32-70-da-b0,vers=4.1,proto=tcp,port=2049  rw  ip=dhcp elevator=deadline rootwait plymouth.ignore-serial-consoles
 EOF
-sudo tee /volume2/homelab-tftp/e4-5f-01-87-3e-e1/cmdline.txt > /dev/null << EOF
-console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/e4-5f-01-87-3e-e1,vers=3  rw  ip=dhcp elevator=deadline rootwait
+sudo tee /volume2/netboot/boot/e4-5f-01-87-3e-e1/cmdline.txt > /dev/null << EOF
+console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.11:/volume2/netboot/rootfs/e4-5f-01-87-3e-e1,vers=4.1,proto=tcp,port=2049  rw  ip=dhcp elevator=deadline rootwait plymouth.ignore-serial-consoles
 EOF
-sudo tee /volume2/homelab-tftp/e4-5f-01-87-56-36/cmdline.txt > /dev/null << EOF
-console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.10:/volume2/homelab-pxe/e4-5f-01-87-56-36,vers=3  rw  ip=dhcp elevator=deadline rootwait
+sudo tee /volume2/netboot/boot/e4-5f-01-87-56-36/cmdline.txt > /dev/null << EOF
+console=serial0,115200  console=tty1  root=/dev/nfs nfsroot=10.10.0.11:/volume2/netboot/rootfs/e4-5f-01-87-56-36,vers=4.1,proto=tcp,port=2049  rw  ip=dhcp elevator=deadline rootwait plymouth.ignore-serial-consoles
 EOF
 
 ```
 
 ### 5.3. PXE filesystem folders
 
-Copy the base image filesystem folder contents, to sub-folders in `/volume2/homelab-tftp` with the mac addresses from the RPi devices:
+Copy the base image filesystem folder contents, to sub-folders in `/volume2/netboot/rootfs` with the mac addresses from the RPi devices:
 
 ```bash
-sudo rsync -av /volume2/homelab-pxe/base-image/ /volume2/homelab-pxe/dc-a6-32-70-da-b0
-sudo rsync -av /volume2/homelab-pxe/base-image/ /volume2/homelab-pxe/e4-5f-01-87-3e-e1
-sudo rsync -av /volume2/homelab-pxe/base-image/ /volume2/homelab-pxe/e4-5f-01-87-56-36
+sudo rsync -av /volume2/netboot/rootfs/base-image/ /volume2/netboot/rootfs/dc-a6-32-70-da-b0
+sudo rsync -av /volume2/netboot/rootfs/base-image/ /volume2/netboot/rootfs/e4-5f-01-87-3e-e1
+sudo rsync -av /volume2/netboot/rootfs/base-image/ /volume2/netboot/rootfs/e4-5f-01-87-56-36
 
 ```
 
 Then configure the rootfs entry in `cmdline.txt`, for mounting the filesystem share for each RPi:
 
 ```bash
-sudo tee /volume2/homelab-pxe/dc-a6-32-70-da-b0/etc/fstab > /dev/null << EOF
+sudo tee /volume2/netboot/rootfs/dc-a6-32-70-da-b0/etc/fstab > /dev/null << EOF
 proc  /proc proc  defaults  0 0
-10.10.0.10:/volume2/homelab-tftp/dc-a6-32-70-da-b0 /boot nfs defaults,vers=3,proto=tcp 0 0
+10.10.0.11:/volume2/netboot/boot/dc-a6-32-70-da-b0 /boot nfs defaults,vers=4.1,proto=tcp,port=2049 0 0
 EOF
-sudo tee /volume2/homelab-pxe/e4-5f-01-87-3e-e1/etc/fstab > /dev/null << EOF
+sudo tee /volume2/netboot/rootfs/e4-5f-01-87-3e-e1/etc/fstab > /dev/null << EOF
 proc  /proc proc  defaults  0 0
-10.10.0.10:/volume2/homelab-tftp/e4-5f-01-87-3e-e1 /boot nfs defaults,vers=3,proto=tcp 0 0
+10.10.0.11:/volume2/netboot/boot/e4-5f-01-87-3e-e1 /boot nfs defaults,vers=4.1,proto=tcp,port=2049 0 0
 EOF
-sudo tee /volume2/homelab-pxe/e4-5f-01-87-56-36/etc/fstab > /dev/null << EOF
+sudo tee /volume2/netboot/rootfs/e4-5f-01-87-56-36/etc/fstab > /dev/null << EOF
 proc  /proc proc  defaults  0 0
-10.10.0.10:/volume2/homelab-tftp/e4-5f-01-87-56-36 /boot nfs defaults,vers=,proto=tcp 0 0
+10.10.0.11:/volume2/netboot/boot/e4-5f-01-87-56-36 /boot nfs defaults,vers=4.1,proto=tcp,port=2049 0 0
 EOF
 
 ```
@@ -262,5 +263,16 @@ I also found out that you can re-use the SD Card with the EEPROM update, power o
 
 ## References
 
+- https://kb.synology.com/en-us/DSM/help/DSM/AdminCenter/file_share_create?version=7
 - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#TFTP_IP
 - https://docs.commscope.com/bundle/fastiron-08092-dhcpguide/page/GUID-5052B91F-07BF-4638-93FB-8C4B570037C4.html
+- https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/configuration/kernel-command-line-config.adoc
+- https://dev.to/weeee/raspberry-pi-cluster-part-1-the-boot-2fe5
+- https://superuser.com/questions/1480986/iptables-1-8-2-failed-to-initialize-nft-protocol-not-supported
+- https://braindose.blog/2021/12/31/install-kubernetes-raspberry-pi/
+- https://serverfault.com/questions/569528/iqn-naming-convention
+
+- https://blogs.oracle.com/linux/post/xfs-data-block-sharing-reflink
+- https://unix.stackexchange.com/questions/525613/xfs-vs-ext4-performance
+
+- https://forum.qnap.com/viewtopic.php?t=58666
