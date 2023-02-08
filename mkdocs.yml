@@ -22,6 +22,10 @@ nav:
           - Setup Traefik: homelab/traefik.md
           - Using Traefik: homelab/traefik-usage.md
       - PiHole: homelab/pihole.md
+  - Synology NAS:
+      - nas/about.md
+      - Mods: nas/mods.md
+      - PXE: nas/pxe.md
   - Advanced Topics:
       - Rootless docker: homelab/rootless-docker.md
   - Current hardware: current-hardware.md
