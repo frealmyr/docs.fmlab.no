@@ -11,24 +11,21 @@ strict: false # Fail build if there are broken links, incompatible with docker s
 docs_dir: docs/
 
 nav:
-  - Home: index.md
-  - Cloud infrastructure:
-    - A take on monitoring:
-      - Metrics: cloud/monitoring/metrics.md
+  - index.md
   - Homelab:
-      - Introduction: homelab/introduction.md
-      - Host setup: homelab/host-setup.md
-      - Traefik:
-          - Setup Traefik: homelab/traefik.md
-          - Using Traefik: homelab/traefik-usage.md
-      - PiHole: homelab/pihole.md
-  - Synology NAS:
-      - nas/about.md
-      - Mods: nas/mods.md
-      - PXE: nas/pxe.md
-  - Advanced Topics:
-      - Rootless docker: homelab/rootless-docker.md
-  - Current hardware: current-hardware.md
+      - homelab/index.md
+      - Routing:
+        - homelab/routing/index.md
+        - traefik: homelab/routing/traefik/about.md
+      - Docker:
+        - traefik: homelab/docker/traefik.md
+  - Workstation:
+    - workstation/index.md
+    - Configuration:
+      - dotfiles: workstation/configuration/dotfiles.md
+      - smb auto-mount: workstation/configuration/smb-automount.md
+    - Laptop:
+      - workstation/laptop/lenovo-x1-gen9.md
 
 theme:
   name: material
