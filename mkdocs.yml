@@ -1,34 +1,34 @@
 site_name: FM Lab
-site_url: https://fmlab.no/
+site_url: https://docs.fmlab.no/
 
 site_author: Fredrick Myrvoll
 site_description: Tutorials, tips and tricks for homelabs and cloud infrastructure whenever i feel a writers itch
 
-repo_name: frealmyr/fmlab.no
-repo_url: https://github.com/frealmyr/fmlab.no
+repo_name: frealmyr/docs.fmlab.no
+repo_url: https://github.com/frealmyr/docs.fmlab.no
 
 strict: false # Fail build if there are broken links, incompatible with docker serve on 0.0.0.0
 docs_dir: docs/
 
 nav:
-  - Home: index.md
-  - Cloud infrastructure:
-    - A take on monitoring:
-      - Metrics: cloud/monitoring/metrics.md
+  - index.md
   - Homelab:
-      - Introduction: homelab/introduction.md
-      - Host setup: homelab/host-setup.md
-      - Traefik:
-          - Setup Traefik: homelab/traefik.md
-          - Using Traefik: homelab/traefik-usage.md
-      - PiHole: homelab/pihole.md
-  - Synology NAS:
-      - nas/about.md
-      - Mods: nas/mods.md
-      - PXE: nas/pxe.md
-  - Advanced Topics:
-      - Rootless docker: homelab/rootless-docker.md
-  - Current hardware: current-hardware.md
+      - homelab/index.md
+      - Network:
+        - homelab/network/index.md
+        - DNS: homelab/network/dns.md
+        - Routing: homelab/network/routing.md
+        - Reverse Proxy: homelab/network/reverse-proxy.md
+      - Docker:
+        - traefik: homelab/docker/traefik.md
+        - rootless docker: homelab/docker/rootless-docker.md
+  - Workstation:
+    - workstation/index.md
+    - Configuration:
+      - dotfiles: workstation/configuration/dotfiles.md
+      - smb auto-mount: workstation/configuration/smb-automount.md
+    - Laptop:
+      - workstation/laptop/lenovo-x1-gen9.md
 
 theme:
   name: material
@@ -43,7 +43,6 @@ theme:
     text: Source Sans Pro
     code: Source Code Pro
   features:
-    - header.autohide
     - navigation.expand
     - navigation.indexes
     - navigation.top
@@ -79,6 +78,6 @@ markdown_extensions:
 extra_css:
   - assets/css/tables.css
   - assets/css/images.css
-  #- assets/css/dark_theme.css
   - assets/css/codehilite.css
   - assets/css/footer.css
+  - assets/css/custom.css
