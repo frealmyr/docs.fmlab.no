@@ -1,0 +1,50 @@
+.md-main {
+  color: #f8f8f2 !important;
+  background-color: #282a36 !important;
+}
+
+.md-main__inner {
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.md-sidebar {
+  padding: 1rem;
+}
+
+.md-header {
+  background-color: #41455c !important;
+}
+
+.md-header-nav__title {
+  padding: 0 !important;
+}
+
+.md-logo {
+  color: #bd93f9 !important;
+}
+
+/* Headers */
+
+.md-main h1 {
+  color: white !important;
+  padding-top: 0.8rem;
+}
+
+.md-typeset h1 {
+  line-height: 0;
+}
+
+.md-typeset h4 {
+  font-weight: 700;
+}
+
+/* Footer */
+
+.md-footer-meta {
+  display: none !important;
+}
+
+.md-footer-meta {
+  display: none !important;
+}
