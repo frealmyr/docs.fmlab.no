@@ -1,0 +1,1201 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Tutorials, tips and tricks for homelabs and cloud infrastructure whenever i feel a writers itch">
+      
+      
+        <meta name="author" content="Fredrick Myrvoll">
+      
+      
+        <link rel="canonical" href="https://docs.fmlab.no/homelab/docker/rootless-docker/">
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.8">
+    
+    
+      
+        <title>rootless docker - FM Lab</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#7e56c2">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,700,700i%7CSource+Code+Pro:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Source Sans Pro";--md-code-font:"Source Code Pro"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/css/tables.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/images.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/codehilite.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/footer.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deprecated" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="FM Lab" class="md-header__button md-logo" aria-label="FM Lab" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 9a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2m13-6H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1M7 19a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2m13-6H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FM Lab
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              rootless docker
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/frealmyr/docs.fmlab.no" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    frealmyr/docs.fmlab.no
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="FM Lab" class="md-nav__button md-logo" aria-label="FM Lab" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 9a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2m13-6H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1M7 19a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2m13-6H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1Z"/></svg>
+
+    </a>
+    FM Lab
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/frealmyr/docs.fmlab.no" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    frealmyr/docs.fmlab.no
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../">Homelab</a>
+          
+            <label for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Homelab" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Homelab
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_2_2" type="checkbox" id="__nav_2_2" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../network/">Network</a>
+          
+            <label for="__nav_2_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Network" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Network
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../network/dns/" class="md-nav__link">
+        DNS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../network/routing/" class="md-nav__link">
+        Routing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../network/reverse-proxy/" class="md-nav__link">
+        Reverse Proxy
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_3" type="checkbox" id="__nav_2_3" checked>
+      
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2_3">
+          Docker
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Docker" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Docker
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../traefik/" class="md-nav__link">
+        traefik
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          rootless docker
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        rootless docker
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rootless-docker" class="md-nav__link">
+    Rootless Docker
+  </a>
+  
+    <nav class="md-nav" aria-label="Rootless Docker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-rootless-docker" class="md-nav__link">
+    Installing rootless docker
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-rootless-docker-on-boot" class="md-nav__link">
+    Enable rootless docker on boot
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allowing-binding-of-privileged-ports" class="md-nav__link">
+    Allowing binding of privileged ports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-dedicated-usergroup-for-containers" class="md-nav__link">
+    Create dedicated user/group for containers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#too-many-open-files-workaround" class="md-nav__link">
+    "Too many open files" Workaround
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../../workstation/">Workstation</a>
+          
+            <label for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Workstation" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Workstation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_2" type="checkbox" id="__nav_3_2" checked>
+      
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_2">
+          Configuration
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Configuration" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_2">
+          <span class="md-nav__icon md-icon"></span>
+          Configuration
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../workstation/configuration/dotfiles/" class="md-nav__link">
+        dotfiles
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../workstation/configuration/smb-automount/" class="md-nav__link">
+        smb auto-mount
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" checked>
+      
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_3">
+          Laptop
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Laptop" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_3">
+          <span class="md-nav__icon md-icon"></span>
+          Laptop
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../workstation/laptop/lenovo-x1-gen9/" class="md-nav__link">
+        Lenovo X1 Carbon Gen 9
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../../synology/">Synology</a>
+          
+            <label for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Synology" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Synology
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
+      
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Docker
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Docker" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Docker
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../synology/docker/setup/" class="md-nav__link">
+        Setup
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_2_2" type="checkbox" id="__nav_4_2_2" checked>
+      
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_4_2_2">
+          Stacks
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Stacks" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Stacks
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../synology/docker/stacks/yarr/" class="md-nav__link">
+        yarr
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../synology/docker/stacks/jellyfin/" class="md-nav__link">
+        jellyfin
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rootless-docker" class="md-nav__link">
+    Rootless Docker
+  </a>
+  
+    <nav class="md-nav" aria-label="Rootless Docker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-rootless-docker" class="md-nav__link">
+    Installing rootless docker
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-rootless-docker-on-boot" class="md-nav__link">
+    Enable rootless docker on boot
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allowing-binding-of-privileged-ports" class="md-nav__link">
+    Allowing binding of privileged ports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-dedicated-usergroup-for-containers" class="md-nav__link">
+    Create dedicated user/group for containers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#too-many-open-files-workaround" class="md-nav__link">
+    "Too many open files" Workaround
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/frealmyr/docs.fmlab.no/edit/master/docs/homelab/docker/rootless-docker.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<h1 id="deprecated">⚠️ DEPRECATED ⚠️<a class="headerlink" href="#deprecated" title="Permanent link">&para;</a></h1>
+<p>I wrote this post back in 2020, Podman wasn't an alternative back then. Its mature now and I do recommend it, keeping this post as reminder for the headaches I encountered with rootless docker.</p>
+<h2 id="rootless-docker">Rootless Docker<a class="headerlink" href="#rootless-docker" title="Permanent link">&para;</a></h2>
+<p>The default way to install docker is to grab the latest debian package and install it on your host using your <em>root</em> user. Docker will then run the daemon, containers, volumes and everything else as <em>root</em>.</p>
+<figure class="figure-image">
+  <img src="\homelab\images\sandwich.png#center" alt=" ">
+  <figcaption> </figcaption>
+</figure>
+
+<blockquote>
+<p>If a container is configured without any security measures and is running as root while it's publicly available. It could be a potential attack vector for gaining <a href="https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/">root access to the underlying host operating system</a>.</p>
+</blockquote>
+<p>With these things in mind, i've recently been trying out the experimental <a href="https://docs.docker.com/engine/security/rootless/">rootless docker mode</a>. Where the concept is to execute the Docker daemon and containers inside a user namespace, instead of running everything as root.</p>
+<p>There are however <a href="https://docs.docker.com/engine/security/rootless/#known-limitations">some limitations while going rootless</a>, as the following features are not supported:</p>
+<ul>
+<li><a href="https://cloud.google.com/container-optimized-os/docs/how-to/secure-apparmor">AppArmor</a></li>
+<li><a href="https://docs.docker.com/engine/reference/commandline/checkpoint/">Checkpoint (Experimental)</a></li>
+<li><a href="https://docs.docker.com/network/overlay/">Overlay network driver</a></li>
+<li>Exposing <a href="https://en.wikipedia.org/wiki/Stream_Control_Transmission_Protocol">SCTP ports</a></li>
+<li><a href="https://docs.docker.com/config/containers/resource_constraints/">Cgroups</a> (hardware limits, <code>docker top</code>)</li>
+<li>Non-debian based OS only supports <a href="https://docs.docker.com/storage/storagedriver/select-storage-driver/">vfs graphdriver</a> which is considered suboptimal for many filesystems. (Overlay2 out-of-the-box on Ubuntu)</li>
+</ul>
+<p>One key advantage to rootless, is the ability to run docker containers inside a user namespace. Which means that you can in theory create dedicated users or groups for docker containers and make use of the host systems UIDs/GIDs for restricting access to files and features.</p>
+<p>The rootless Docker mode is still in a experimental stage. While it works rather well on my system, some bugs might arise in the future.</p>
+<blockquote>
+<p>Earlier issues like low network throughput <a href="https://github.com/AkihiroSuda/libpod/commit/da7595a69fc15d131c9d8123d0a165bdde4232b6">has been fixed</a>, so if you decide to use rootless Docker, please report any bugs or issues that you might have discovered to the relevant repositories.</p>
+</blockquote>
+<h3 id="installing-rootless-docker">Installing rootless docker<a class="headerlink" href="#installing-rootless-docker" title="Permanent link">&para;</a></h3>
+<p>First we need to install the dependency <code>uidmap</code> which is needed to allow multiple UIDs/GIDs to be used in the user namespace.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo apt update <span class="o">&amp;&amp;</span> sudo apt install -f curl uidmap
+</code></pre></div></td></tr></table></div>
+<p>Now we can fetch and install the latest stable release of the rootless install script.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>curl -fsSL https://get.docker.com/rootless <span class="p">|</span> sh
+</code></pre></div></td></tr></table></div>
+<p>When the install script finishes, the output will provide some environment variable exports that will be needed by the docker-cli for connecting to the rootless docker daemon.</p>
+<p>If you run <code>cat ~/.profile</code>, you can see that Ubuntu automatically adds <code>${HOME}/bin</code> to $PATH if the folder exists. So there is no need to add this to path manually.</p>
+<p>So we only need to add the <code>DOCKER_HOST</code> environment variable to our profile.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;export DOCKER_HOST=unix:///run/user/1000/docker.sock&quot;</span> &gt;&gt; ~/.profile
+</code></pre></div></td></tr></table></div>
+<p>Now run <code>source ~/.profile</code> to refresh the environment variables.</p>
+<h4 id="starting-the-rootless-docker-daemon">Starting the rootless docker daemon<a class="headerlink" href="#starting-the-rootless-docker-daemon" title="Permanent link">&para;</a></h4>
+<p>If you now try to run <code>docker ps</code>, it should result in a error as the docker daemon is not running.</p>
+<p>To start rootless docker use the following command</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>systemctl --user start docker
+</code></pre></div></td></tr></table></div>
+<p>You can now try to run <code>docker run hello-world</code> to test if Docker is working properly.</p>
+<h3 id="enable-rootless-docker-on-boot">Enable rootless docker on boot<a class="headerlink" href="#enable-rootless-docker-on-boot" title="Permanent link">&para;</a></h3>
+<p>After you have made sure that Docker is working normally, you can run the following command to start rootless Docker on boot</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>systemctl --user <span class="nb">enable</span> docker
+</code></pre></div></td></tr></table></div>
+<h3 id="allowing-binding-of-privileged-ports">Allowing binding of privileged ports<a class="headerlink" href="#allowing-binding-of-privileged-ports" title="Permanent link">&para;</a></h3>
+<p>By default on most GNU/Linux distrobutions, ports under <code>1000</code> are privileged and requires root access for changes. We can however allow the <a href="https://github.com/rootless-containers/rootlesskit">rootlesskit</a> binary to bind privileged ports by running this command:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo setcap <span class="nv">cap_net_bind_service</span><span class="o">=</span>ep <span class="nv">$HOME</span>/bin/rootlesskit
+</code></pre></div></td></tr></table></div>
+<blockquote>
+<p>This will require a restart before the changes takes effect, applications which tries to bind privileged ports before restarting will return odd error messages.</p>
+</blockquote>
+<h3 id="create-dedicated-usergroup-for-containers">Create dedicated user/group for containers<a class="headerlink" href="#create-dedicated-usergroup-for-containers" title="Permanent link">&para;</a></h3>
+<p>Create a group called <code>homelab</code> with the gid <code>1001</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo groupadd -g <span class="m">1001</span> homelab
+</code></pre></div></td></tr></table></div>
+<p>Create a user called <code>docker</code> with the uid <code>1001</code>, without any home directory:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>sudo useradd -s /bin/bash -u <span class="m">1001</span> -M -g homelab docker
+</code></pre></div></td></tr></table></div>
+<p>You can verify that the user and group is created with the <code>1001</code> id, by running:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>grep homelab /etc/group
+cat /etc/passwd <span class="p">|</span> grep docker
+</code></pre></div></td></tr></table></div>
+<p>We can now use <code>1001:1001</code> when starting a docker container, to make the system inside use the provided GID/UID. Which will on the host, will be translated as the user <code>docker</code> in the <code>homelab</code> group. Making it possible to restrict its access to files and folders.</p>
+<h3 id="too-many-open-files-workaround">"Too many open files" Workaround<a class="headerlink" href="#too-many-open-files-workaround" title="Permanent link">&para;</a></h3>
+<p>While i was converting to rootless docker, i only had a few containers running for trying out the setup. But after trying to run my whole homelab stack in rootless, i started to see some errors related to the host's security limits.</p>
+<p>After some debugging i noticed the following limit in the <code>dockerd</code> process:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code>frealmyr@SRV:~$ ps aux <span class="p">|</span> grep <span class="s2">&quot;dockerd --experimental&quot;</span>
+frealmyr  <span class="m">1225</span>  <span class="m">7</span>.9  <span class="m">0</span>.4 <span class="m">1829280</span> <span class="m">74712</span> ? Sl <span class="m">14</span>:46 <span class="m">0</span>:08 dockerd --experimental --storage-driver<span class="o">=</span>overlay2
+
+frealmyr@SRV:~$ cat /proc/1242/limits <span class="p">|</span> grep <span class="s2">&quot;Max open files&quot;</span>
+Max open files <span class="m">4096</span> <span class="m">4096</span> files
+</code></pre></div></td></tr></table></div>
+<p>This output tells us that <code>dockerd</code> process will only be allowed to have a maximum of <code>4096</code> simultaneously open files at all times. Add a few web servers and databases, and we will blast past that limit in no time, where we will end up with these kinds of errors:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code>homelab: now starting Office//homer/
+Starting homer ... error
+
+ERROR: <span class="k">for</span> homer  Cannot start service homer: failed to start shim: fork/exec /home/frealmyr/bin/containerd-shim: too many open files: unknown
+
+ERROR: <span class="k">for</span> homer  Cannot start service homer: failed to start shim: fork/exec /home/frealmyr/bin/containerd-shim: too many open files: unknown
+ERROR: Encountered errors <span class="k">while</span> bringing up the project.
+
+homelab: now starting Office//kanboard/
+Starting kanboard_db ... error
+
+ERROR: <span class="k">for</span> kanboard_db  Cannot start service postgres: failed to start shim: fork/exec /home/frealmyr/bin/containerd-shim: too many open files: unknown
+
+ERROR: <span class="k">for</span> postgres  Cannot start service postgres: failed to start shim: fork/exec /home/frealmyr/bin/containerd-shim: too many open files: unknown
+ERROR: Encountered errors <span class="k">while</span> bringing up the project.
+</code></pre></div></td></tr></table></div>
+<p>What we are affected by here, is the kernel security configuration for <a href="https://ss64.com/bash/ulimit.html">user limits</a>. Where the limit for "Max open files", is way too low for running multiple docker containers under a normal user.</p>
+<p>There are two limits, one soft that the user can decrease and one hard which sets the upper limit for the user. You can check the default limits for systemd processes by running:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>frealmyr@SRV:~$ systemctl --user show foobar <span class="p">|</span> grep LimitNOFILE
+<span class="nv">LimitNOFILE</span><span class="o">=</span><span class="m">4096</span>
+<span class="nv">LimitNOFILESoft</span><span class="o">=</span><span class="m">4096</span>
+</code></pre></div></td></tr></table></div>
+<p>Since that is too low for our purpose, let's increase the default limit for our systemd processes. Edit the <code>/etc/systemd/system.conf</code> file with root privileges, uncomment and update the following line:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">DefaultLimitNOFILE</span><span class="o">=</span><span class="m">100000</span>
+</code></pre></div></td></tr></table></div>
+<p>After a reboot. You can now try to run the previous command, where you should see that the default limits for number of open files have increased to <code>100000</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>frealmyr@SRV:~$ systemctl --user show foobar <span class="p">|</span> grep LimitNOFILE
+<span class="nv">LimitNOFILE</span><span class="o">=</span><span class="m">100000</span>
+<span class="nv">LimitNOFILESoft</span><span class="o">=</span><span class="m">100000</span>
+</code></pre></div></td></tr></table></div>
+<p>Since the <code>docker.service</code> file have <code>infinity</code> defined for the limits in the service config, it should now have default <code>100000</code> as the limit. Which should be more than enough for a large Homelab setup.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code>frealmyr@SRV:~$ cat <span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/.config/systemd/user/docker.service <span class="p">|</span> grep LimitNOFILE
+<span class="nv">LimitNOFILE</span><span class="o">=</span>infinity
+
+frealmyr@SRV:~$ cat /proc/<span class="k">$(</span>ps aux <span class="p">|</span> grep <span class="s2">&quot;dockerd --experimental&quot;</span> <span class="p">|</span> head -n1 <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>/limits <span class="p">|</span> grep <span class="s2">&quot;Max open files&quot;</span>
+Max open files <span class="m">100000</span> <span class="m">100000</span> files
+</code></pre></div></td></tr></table></div>
+<p>You can read more about the systemd limits here: https://www.freedesktop.org/software/systemd/man/systemd.exec.html#Process%20Properties</p>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 24, 2023</span>
+      
+    
+  </small>
+</div>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../traefik/" class="md-footer__link md-footer__link--prev" aria-label="Previous: traefik" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              traefik
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../../../workstation/" class="md-footer__link md-footer__link--next" aria-label="Next: Workstation" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Workstation
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.expand", "navigation.indexes", "navigation.top", "navigation.tracking", "search.suggest"], "search": "../../../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.0238f547.min.js"></script>
+      
+    
+  </body>
+</html>
